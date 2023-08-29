@@ -8,7 +8,7 @@ This C# project uses <a href="https://www.vintasoft.com/vsimaging-dotnet-index.h
 
 
 ## Screenshot
-<img src="vintasoft-image-converter-demo.png" alt="VintaSoft Image Converter Demo">
+<img src="vintasoft-image-converter-demo.png" title="VintaSoft Image Converter Demo">
 
 
 ## Usage
