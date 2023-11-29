@@ -371,6 +371,7 @@ namespace ImageConverterDemo
             // if only one source file specified
             if (_sourceFilenames.Count == 1)
             {
+#if !REMOVE_OFFICE_PLUGIN
                 string sourceFileExtension = Path.GetExtension(_sourceFilenames[0]).ToUpperInvariant();
                 // if the source file extension is DOC
                 if (sourceFileExtension == ".DOC")
@@ -380,11 +381,21 @@ namespace ImageConverterDemo
                 }
 
                 // if the source file extension is XLS
-                if (sourceFileExtension == ".XLS")
+                if (sourceFileExtension == ".XLS" ||
+                    sourceFileExtension == ".TSV" || sourceFileExtension == ".TAB" ||
+                    sourceFileExtension == ".CSV")
                 {
                     // set a new filter with an option to save to XLSX file
                     saveFileDialog1.Filter = string.Format("{0}|{1}", saveFileDialog1.Filter, "XLSX files|*.xlsx");
                 }
+
+                // if the source file extension is XLSX
+                if (sourceFileExtension == ".XLSX")
+                {
+                    // set a new filter with an option to save to XLSX file
+                    saveFileDialog1.Filter = string.Format("{0}|{1}", saveFileDialog1.Filter, "TSV files|*.tsv|CSV files|*.csv");
+                }
+#endif
             }
 
             // show save file dialog
@@ -485,12 +496,54 @@ namespace ImageConverterDemo
 
                     // choose a conversion type
                     if (sourceFileExtension == ".DOC" && destFileExtension == ".DOCX")
-                        _conversionThread = new Thread(ConvertDocToDocx);
+                        _conversionThread = new Thread(ConvertDocToDocxThread);
                     else if (sourceFileExtension == ".XLS" && destFileExtension == ".XLSX")
-                        _conversionThread = new Thread(ConvertXlsToXlsx);
+                        _conversionThread = new Thread(ConvertXlsToXlsxThread);
+                    else if ((sourceFileExtension == ".TSV" || sourceFileExtension == ".TAB") &&
+                         destFileExtension == ".XLSX")
+                        _conversionThread = new Thread(ConvertTsvToXlsxThread);
+                    else if (sourceFileExtension == ".CSV" && destFileExtension == ".XLSX")
+                        _conversionThread = new Thread(ConvertCsvToXlsxThread);
                     else
                         return;
 
+                    convertButton.Text = "Cancel";
+                    InvokeUpdateMainMenu(false);
+
+                    _conversionThread.IsBackground = true;
+                    // start the conversion thread
+                    _conversionThread.Start();
+                    return;
+                }
+                // if converting XLSX to TSV
+                if (sourceFileExtension == ".XLSX" &&
+                    (destFileExtension == ".TSV" || destFileExtension == ".TAB"))
+                {
+                    if (_sourceFilenames.Count != 1)
+                    {
+                        DemosTools.ShowInfoMessage("For this destination file type specify exactly one source file.");
+                        return;
+                    }
+
+                    _conversionThread = new Thread(ConvertXlsxToTsvThread);
+                    convertButton.Text = "Cancel";
+                    InvokeUpdateMainMenu(false);
+
+                    _conversionThread.IsBackground = true;
+                    // start the conversion thread
+                    _conversionThread.Start();
+                    return;
+                }
+                // if converting XLSX to CSV
+                if (sourceFileExtension == ".XLSX" && destFileExtension == ".CSV")
+                {
+                    if (_sourceFilenames.Count != 1)
+                    {
+                        DemosTools.ShowInfoMessage("For this destination file type specify exactly one source file.");
+                        return;
+                    }
+
+                    _conversionThread = new Thread(ConvertXlsxToCsvThread);
                     convertButton.Text = "Cancel";
                     InvokeUpdateMainMenu(false);
 
@@ -568,7 +621,7 @@ namespace ImageConverterDemo
                 convertButton.Text = "Cancel";
                 InvokeUpdateMainMenu(false);
 
-                _conversionThread = new Thread(ConvertAsync);
+                _conversionThread = new Thread(ConvertImageFileThread);
                 _conversionThread.IsBackground = true;
                 // start the conversion thread
                 _conversionThread.Start(encoder);
@@ -690,10 +743,10 @@ namespace ImageConverterDemo
         #region Conversion
 
         /// <summary>
-        /// Converts an image file asynchronously.
+        /// A thread method that converts an image file.
         /// </summary>
         /// <param name="obj">The object with conversion parameters.</param>
-        private void ConvertAsync(object obj)
+        private void ConvertImageFileThread(object obj)
         {
             try
             {
@@ -782,9 +835,9 @@ namespace ImageConverterDemo
 
 #if !REMOVE_OFFICE_PLUGIN
         /// <summary>
-        /// Converts DOC file to DOCX file asynchronously.
+        /// A thread method that converts a DOC file to a DOCX file.
         /// </summary>
-        private void ConvertDocToDocx()
+        private void ConvertDocToDocxThread()
         {
             try
             {
@@ -802,14 +855,94 @@ namespace ImageConverterDemo
         }
 
         /// <summary>
-        /// Converts XLS file to XLSX file asynchronously.
+        /// A thread method that converts an XLS file to an XLSX file.
         /// </summary>
-        private void ConvertXlsToXlsx()
+        private void ConvertXlsToXlsxThread()
         {
             try
             {
                 OnConversionStarting();
                 OpenXmlDocumentConverter.ConvertXlsToXlsx(_sourceFilenames[0], _destFilename);
+            }
+            catch (Exception ex)
+            {
+                DemosTools.ShowErrorMessage(ex);
+            }
+            finally
+            {
+                OnConversionFinish();
+            }
+        }
+
+        /// <summary>
+        /// A thread method that converts an XLSX file to a TSV file.
+        /// </summary>
+        private void ConvertXlsxToTsvThread()
+        {
+            try
+            {
+                OnConversionStarting();
+                OpenXmlDocumentConverter.ConvertXlsxToTsv(_sourceFilenames[0], 0, _destFilename);
+            }
+            catch (Exception ex)
+            {
+                DemosTools.ShowErrorMessage(ex);
+            }
+            finally
+            {
+                OnConversionFinish();
+            }
+        }
+
+        /// <summary>
+        /// A thread method that converts an XLSX file to a CSV file.
+        /// </summary>
+        private void ConvertXlsxToCsvThread()
+        {
+            try
+            {
+                OnConversionStarting();
+                OpenXmlDocumentConverter.ConvertXlsxToCsv(_sourceFilenames[0], 0, _destFilename, System.Text.Encoding.UTF8);
+            }
+            catch (Exception ex)
+            {
+                DemosTools.ShowErrorMessage(ex);
+            }
+            finally
+            {
+                OnConversionFinish();
+            }
+        }
+
+        /// <summary>
+        /// A thread method that converts a TSV file to an XLSX file.
+        /// </summary>
+        private void ConvertTsvToXlsxThread()
+        {
+            try
+            {
+                OnConversionStarting();
+                OpenXmlDocumentConverter.ConvertTsvToXlsx(_sourceFilenames[0], _destFilename);
+            }
+            catch (Exception ex)
+            {
+                DemosTools.ShowErrorMessage(ex);
+            }
+            finally
+            {
+                OnConversionFinish();
+            }
+        }
+
+        /// <summary>
+        /// A thread method that converts a CSV file to an XLSX file.
+        /// </summary>
+        private void ConvertCsvToXlsxThread()
+        {
+            try
+            {
+                OnConversionStarting();
+                OpenXmlDocumentConverter.ConvertCsvToXlsx(_sourceFilenames[0], _destFilename);
             }
             catch (Exception ex)
             {
@@ -901,7 +1034,7 @@ namespace ImageConverterDemo
 #endif
 
         /// <summary>
-        /// Determines whether image collection has vector images.
+        /// Returns a value indicating whether image collection has vector images.
         /// </summary>
         /// <param name="images">The images.</param>
         /// <returns>
@@ -910,13 +1043,15 @@ namespace ImageConverterDemo
         private bool HasVectorImages(ImageCollection images)
         {
             foreach (VintasoftImage image in images)
+            {
                 if (image.IsVectorImage)
                     return true;
+            }
             return false;
         }
 
         /// <summary>
-        /// Disables the UI when the conversion process is starting.
+        /// The conversion process is starting.
         /// </summary>
         private void OnConversionStarting()
         {
@@ -931,7 +1066,7 @@ namespace ImageConverterDemo
         }
 
         /// <summary>
-        /// Updates the UI and shows result message when the conversion process is finished.
+        /// The conversion process is finished.
         /// </summary>
         private void OnConversionFinish()
         {

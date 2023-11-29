@@ -1,4 +1,8 @@
-﻿using System;
+﻿#if REMOVE_PDF_PLUGIN
+#error Remove SelectPdfFormatForm from project.
+#endif
+
+using System;
 using System.Windows.Forms;
 
 using Vintasoft.Imaging.Pdf;
@@ -22,13 +26,13 @@ namespace DemosCommonCode.Pdf
             _format = initialFormat;
             pdfVersion.SelectedItem = _format.Version;
             if (pdfVersion.SelectedIndex > 4)
-            {
                 compressedCrossReferenceTable.Checked = _format.CompressedCrossReferenceTable;
-            }
             else
-            {
                 compressedCrossReferenceTable.Checked = false;
-            }
+
+            if (initialFormat.VersionNumber >= 12)
+                linearizedCheckBox.Checked = _format.LinearizedFormat;
+
             binaryFormat.Checked = _format.BinaryFormat;
             _newEncryptionSettings = initialEncryptionSettings;
         }
@@ -40,6 +44,9 @@ namespace DemosCommonCode.Pdf
         #region Properties
 
         PdfFormat _format;
+        /// <summary>
+        /// Gets the PDF document format.
+        /// </summary>
         public PdfFormat Format
         {
             get
@@ -49,6 +56,9 @@ namespace DemosCommonCode.Pdf
         }
 
         EncryptionSystem _newEncryptionSettings;
+        /// <summary>
+        /// Gets the new encryption settings of PDF document.
+        /// </summary>
         public EncryptionSystem NewEncryptionSettings
         {
             get
@@ -68,7 +78,7 @@ namespace DemosCommonCode.Pdf
         /// </summary>
         private void okButton_Click(object sender, EventArgs e)
         {
-            _format = new PdfFormat(pdfVersion.SelectedItem.ToString(), compressedCrossReferenceTable.Checked, binaryFormat.Checked);
+            _format = new PdfFormat(pdfVersion.SelectedItem.ToString(), compressedCrossReferenceTable.Checked, binaryFormat.Checked, linearizedCheckBox.Checked);
             DialogResult = System.Windows.Forms.DialogResult.OK;
             Close();
         }
@@ -97,6 +107,16 @@ namespace DemosCommonCode.Pdf
             {
                 compressedCrossReferenceTable.Checked = false;
                 compressedCrossReferenceTable.Enabled = false;
+            }
+            if (pdfVersion.SelectedIndex >= 2)
+            {
+                linearizedCheckBox.Checked = _format.LinearizedFormat;
+                linearizedCheckBox.Enabled = true;
+            }
+            else
+            {
+                linearizedCheckBox.Checked = false;
+                linearizedCheckBox.Enabled = false;
             }
         }
 

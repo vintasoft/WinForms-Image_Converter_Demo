@@ -1,3 +1,7 @@
+#if REMOVE_PDF_PLUGIN
+#error Remove SecuritySettingsForm from project.
+#endif
+
 using System;
 using System.Windows.Forms;
 

@@ -30,19 +30,21 @@ namespace DemosCommonCode.Pdf
         {
             this.buttonCancel = new System.Windows.Forms.Button();
             this.okButton = new System.Windows.Forms.Button();
-            this.panel1 = new System.Windows.Forms.Panel();
             this.securityButton = new System.Windows.Forms.Button();
             this.binaryFormat = new System.Windows.Forms.CheckBox();
             this.compressedCrossReferenceTable = new System.Windows.Forms.CheckBox();
             this.label1 = new System.Windows.Forms.Label();
             this.pdfVersion = new System.Windows.Forms.ComboBox();
-            this.panel1.SuspendLayout();
+            this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
+            this.linearizedCheckBox = new System.Windows.Forms.CheckBox();
+            this.tableLayoutPanel1.SuspendLayout();
             this.SuspendLayout();
             // 
             // buttonCancel
             // 
+            this.buttonCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.buttonCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.buttonCancel.Location = new System.Drawing.Point(141, 132);
+            this.buttonCancel.Location = new System.Drawing.Point(223, 146);
             this.buttonCancel.Name = "buttonCancel";
             this.buttonCancel.Size = new System.Drawing.Size(75, 27);
             this.buttonCancel.TabIndex = 3;
@@ -52,7 +54,8 @@ namespace DemosCommonCode.Pdf
             // 
             // okButton
             // 
-            this.okButton.Location = new System.Drawing.Point(60, 132);
+            this.okButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.okButton.Location = new System.Drawing.Point(142, 146);
             this.okButton.Name = "okButton";
             this.okButton.Size = new System.Drawing.Size(75, 27);
             this.okButton.TabIndex = 2;
@@ -60,21 +63,11 @@ namespace DemosCommonCode.Pdf
             this.okButton.UseVisualStyleBackColor = true;
             this.okButton.Click += new System.EventHandler(this.okButton_Click);
             // 
-            // panel1
-            // 
-            this.panel1.Controls.Add(this.securityButton);
-            this.panel1.Controls.Add(this.binaryFormat);
-            this.panel1.Controls.Add(this.compressedCrossReferenceTable);
-            this.panel1.Controls.Add(this.label1);
-            this.panel1.Controls.Add(this.pdfVersion);
-            this.panel1.Location = new System.Drawing.Point(12, 12);
-            this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(258, 114);
-            this.panel1.TabIndex = 4;
-            // 
             // securityButton
             // 
-            this.securityButton.Location = new System.Drawing.Point(47, 31);
+            this.securityButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.securityButton.AutoSize = true;
+            this.securityButton.Location = new System.Drawing.Point(51, 30);
             this.securityButton.Name = "securityButton";
             this.securityButton.Size = new System.Drawing.Size(107, 23);
             this.securityButton.TabIndex = 17;
@@ -87,7 +80,8 @@ namespace DemosCommonCode.Pdf
             this.binaryFormat.AutoSize = true;
             this.binaryFormat.Checked = true;
             this.binaryFormat.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.binaryFormat.Location = new System.Drawing.Point(3, 85);
+            this.tableLayoutPanel1.SetColumnSpan(this.binaryFormat, 3);
+            this.binaryFormat.Location = new System.Drawing.Point(3, 82);
             this.binaryFormat.Name = "binaryFormat";
             this.binaryFormat.Size = new System.Drawing.Size(90, 17);
             this.binaryFormat.TabIndex = 17;
@@ -97,7 +91,8 @@ namespace DemosCommonCode.Pdf
             // compressedCrossReferenceTable
             // 
             this.compressedCrossReferenceTable.AutoSize = true;
-            this.compressedCrossReferenceTable.Location = new System.Drawing.Point(3, 62);
+            this.tableLayoutPanel1.SetColumnSpan(this.compressedCrossReferenceTable, 3);
+            this.compressedCrossReferenceTable.Location = new System.Drawing.Point(3, 59);
             this.compressedCrossReferenceTable.Name = "compressedCrossReferenceTable";
             this.compressedCrossReferenceTable.Size = new System.Drawing.Size(249, 17);
             this.compressedCrossReferenceTable.TabIndex = 16;
@@ -106,8 +101,9 @@ namespace DemosCommonCode.Pdf
             // 
             // label1
             // 
+            this.label1.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(0, 7);
+            this.label1.Location = new System.Drawing.Point(3, 7);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(42, 13);
             this.label1.TabIndex = 15;
@@ -115,6 +111,7 @@ namespace DemosCommonCode.Pdf
             // 
             // pdfVersion
             // 
+            this.pdfVersion.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.pdfVersion.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.pdfVersion.FormattingEnabled = true;
             this.pdfVersion.Items.AddRange(new object[] {
@@ -127,19 +124,58 @@ namespace DemosCommonCode.Pdf
             "1.6",
             "1.7",
             "2.0"});
-            this.pdfVersion.Location = new System.Drawing.Point(48, 4);
+            this.pdfVersion.Location = new System.Drawing.Point(51, 3);
             this.pdfVersion.Name = "pdfVersion";
-            this.pdfVersion.Size = new System.Drawing.Size(105, 21);
+            this.pdfVersion.Size = new System.Drawing.Size(107, 21);
             this.pdfVersion.TabIndex = 14;
             this.pdfVersion.SelectedIndexChanged += new System.EventHandler(this.pdfVersion_SelectedIndexChanged);
+            // 
+            // tableLayoutPanel1
+            // 
+            this.tableLayoutPanel1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.tableLayoutPanel1.AutoSize = true;
+            this.tableLayoutPanel1.ColumnCount = 3;
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanel1.Controls.Add(this.binaryFormat, 0, 3);
+            this.tableLayoutPanel1.Controls.Add(this.securityButton, 1, 1);
+            this.tableLayoutPanel1.Controls.Add(this.compressedCrossReferenceTable, 0, 2);
+            this.tableLayoutPanel1.Controls.Add(this.label1, 0, 0);
+            this.tableLayoutPanel1.Controls.Add(this.pdfVersion, 1, 0);
+            this.tableLayoutPanel1.Controls.Add(this.linearizedCheckBox, 0, 4);
+            this.tableLayoutPanel1.Location = new System.Drawing.Point(9, 9);
+            this.tableLayoutPanel1.Margin = new System.Windows.Forms.Padding(0);
+            this.tableLayoutPanel1.Name = "tableLayoutPanel1";
+            this.tableLayoutPanel1.RowCount = 5;
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(292, 129);
+            this.tableLayoutPanel1.TabIndex = 5;
+            // 
+            // linearizedCheckBox
+            // 
+            this.linearizedCheckBox.AutoSize = true;
+            this.tableLayoutPanel1.SetColumnSpan(this.linearizedCheckBox, 3);
+            this.linearizedCheckBox.Location = new System.Drawing.Point(3, 105);
+            this.linearizedCheckBox.Name = "linearizedCheckBox";
+            this.linearizedCheckBox.Size = new System.Drawing.Size(90, 17);
+            this.linearizedCheckBox.TabIndex = 18;
+            this.linearizedCheckBox.Text = "Linearized Format";
+            this.linearizedCheckBox.UseVisualStyleBackColor = true;
             // 
             // SelectPdfFormatForm
             // 
             this.AcceptButton = this.okButton;
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.AutoSize = true;
             this.CancelButton = this.buttonCancel;
-            this.ClientSize = new System.Drawing.Size(278, 163);
-            this.Controls.Add(this.panel1);
+            this.ClientSize = new System.Drawing.Size(310, 185);
+            this.Controls.Add(this.tableLayoutPanel1);
             this.Controls.Add(this.buttonCancel);
             this.Controls.Add(this.okButton);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
@@ -148,9 +184,10 @@ namespace DemosCommonCode.Pdf
             this.Name = "SelectPdfFormatForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Document Format";
-            this.panel1.ResumeLayout(false);
-            this.panel1.PerformLayout();
+            this.tableLayoutPanel1.ResumeLayout(false);
+            this.tableLayoutPanel1.PerformLayout();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -158,11 +195,12 @@ namespace DemosCommonCode.Pdf
 
         private System.Windows.Forms.Button buttonCancel;
         private System.Windows.Forms.Button okButton;
-        private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.CheckBox binaryFormat;
         private System.Windows.Forms.CheckBox compressedCrossReferenceTable;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.ComboBox pdfVersion;
         private System.Windows.Forms.Button securityButton;
+        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
+        private System.Windows.Forms.CheckBox linearizedCheckBox;
     }
 }
