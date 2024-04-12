@@ -74,7 +74,7 @@ namespace DemosCommonCode.Pdf
         #region Methods
 
         /// <summary>
-        /// Handles the Click event of OkButton object.
+        /// Handles the Click event of okButton object.
         /// </summary>
         private void okButton_Click(object sender, EventArgs e)
         {
@@ -84,7 +84,7 @@ namespace DemosCommonCode.Pdf
         }
 
         /// <summary>
-        /// Handles the Click event of CancelButton object.
+        /// Handles the Click event of cancelButton object.
         /// </summary>
         private void cancelButton_Click(object sender, EventArgs e)
         {
@@ -93,7 +93,7 @@ namespace DemosCommonCode.Pdf
         }
 
         /// <summary>
-        /// Handles the SelectedIndexChanged event of PdfVersion object.
+        /// Handles the SelectedIndexChanged event of pdfVersion object.
         /// </summary>
         private void pdfVersion_SelectedIndexChanged(object sender, EventArgs e)
         {
@@ -121,7 +121,7 @@ namespace DemosCommonCode.Pdf
         }
 
         /// <summary>
-        /// Handles the Click event of SecurityButton object.
+        /// Handles the Click event of securityButton object.
         /// </summary>
         private void securityButton_Click(object sender, EventArgs e)
         {

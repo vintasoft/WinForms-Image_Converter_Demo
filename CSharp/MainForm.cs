@@ -123,6 +123,7 @@ namespace ImageConverterDemo
             PdfAssemblyLoader.Load();
             PdfAnnotationsAssemblyLoader.Load();
             DocxAssemblyLoader.Load();
+            PdfOfficeAssemblyLoader.Load();
 
             // set CustomFontProgramsController for all opened documents
             CustomFontProgramsController.SetDefaultFontProgramsController();
@@ -139,6 +140,12 @@ namespace ImageConverterDemo
             // set filters in open dialog
             CodecsFileFilters.SetOpenFileDialogFilter(openFileDialog1);
             CodecsFileFilters.SetSaveFileDialogFilter(saveFileDialog1, false, false);
+
+#if !REMOVE_OFFICE_PLUGIN && !REMOVE_PDF_PLUGIN
+            // if DOCX encoder is available
+            if (AvailableEncoders.IsEncoderAvailable("Docx"))
+                saveFileDialog1.Filter += "|" + "DOCX files|*.docx";
+#endif
 
             // set color management decoding settings
             _colorManagementDecodeSettings = new ColorManagementDecodeSettings();
@@ -219,7 +226,7 @@ namespace ImageConverterDemo
         #region 'File' menu
 
         /// <summary>
-        /// Handles the Click event of ExitToolStripMenuItem object.
+        /// Handles the Click event of exitToolStripMenuItem object.
         /// </summary>
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -233,7 +240,7 @@ namespace ImageConverterDemo
         #region 'Settings' menu
 
         /// <summary>
-        /// Handles the Click event of ColorManagementDecodeSettingsToolStripMenuItem object.
+        /// Handles the Click event of colorManagementDecodeSettingsToolStripMenuItem object.
         /// </summary>
         private void colorManagementDecodeSettingsToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -249,7 +256,7 @@ namespace ImageConverterDemo
         }
 
         /// <summary>
-        /// Handles the Click event of RenderingSettingsToolStripMenuItem object.
+        /// Handles the Click event of renderingSettingsToolStripMenuItem object.
         /// </summary>
         private void renderingSettingsToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -261,7 +268,7 @@ namespace ImageConverterDemo
         }
 
         /// <summary>
-        /// Handles the Click event of DocxToolStripMenuItem object.
+        /// Handles the Click event of docxToolStripMenuItem object.
         /// </summary>
         private void docxToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -270,7 +277,7 @@ namespace ImageConverterDemo
         }
 
         /// <summary>
-        /// Handles the Click event of XlsxToolStripMenuItem object.
+        /// Handles the Click event of xlsxToolStripMenuItem object.
         /// </summary>
         private void xlsxToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -279,7 +286,7 @@ namespace ImageConverterDemo
         }
 
         /// <summary>
-        /// Handles the Click event of MaxThreadsToolStripMenuItem object.
+        /// Handles the Click event of maxThreadsToolStripMenuItem object.
         /// </summary>
         private void maxThreadsToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -301,7 +308,7 @@ namespace ImageConverterDemo
         #region 'Help' menu
 
         /// <summary>
-        /// Handles the Click event of AboutToolStripMenuItem object.
+        /// Handles the Click event of aboutToolStripMenuItem object.
         /// </summary>
         private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -317,7 +324,7 @@ namespace ImageConverterDemo
         #region File manipulations
 
         /// <summary>
-        /// Handles the Click event of AddSourceFilesButton object.
+        /// Handles the Click event of addSourceFilesButton object.
         /// </summary>
         private void addSourceFilesButton_Click(object sender, EventArgs e)
         {
@@ -332,7 +339,7 @@ namespace ImageConverterDemo
         }
 
         /// <summary>
-        /// Handles the Click event of RemoveSourceFileButton object.
+        /// Handles the Click event of removeSourceFileButton object.
         /// </summary>
         private void removeSourceFileButton_Click(object sender, EventArgs e)
         {
@@ -347,7 +354,7 @@ namespace ImageConverterDemo
         }
 
         /// <summary>
-        /// Handles the Click event of ClearSourceFilesButton object.
+        /// Handles the Click event of clearSourceFilesButton object.
         /// </summary>
         private void clearSourceFilesButton_Click(object sender, EventArgs e)
         {
@@ -357,7 +364,7 @@ namespace ImageConverterDemo
         }
 
         /// <summary>
-        /// Handles the Click event of DestFileButton object.
+        /// Handles the Click event of destFileButton object.
         /// </summary>
         private void destFileButton_Click(object sender, EventArgs e)
         {
@@ -373,12 +380,6 @@ namespace ImageConverterDemo
             {
 #if !REMOVE_OFFICE_PLUGIN
                 string sourceFileExtension = Path.GetExtension(_sourceFilenames[0]).ToUpperInvariant();
-                // if the source file extension is DOC
-                if (sourceFileExtension == ".DOC")
-                {
-                    // set a new filter with an option to save to DOCX file
-                    saveFileDialog1.Filter = string.Format("{0}|{1}", saveFileDialog1.Filter, "DOCX files|*.docx");
-                }
 
                 // if the source file extension is XLS
                 if (sourceFileExtension == ".XLS" ||
@@ -410,7 +411,7 @@ namespace ImageConverterDemo
         }
 
         /// <summary>
-        /// Handles the TextChanged event of DestFilenameTextBox object.
+        /// Handles the TextChanged event of destFilenameTextBox object.
         /// </summary>
         private void destFilenameTextBox_TextChanged(object sender, EventArgs e)
         {
@@ -445,7 +446,7 @@ namespace ImageConverterDemo
 
 
         /// <summary>
-        /// Handles the Click event of ConvertButton object.
+        /// Handles the Click event of convertButton object.
         /// </summary>
         private void convertButton_Click(object sender, EventArgs e)
         {
@@ -488,32 +489,34 @@ namespace ImageConverterDemo
                 // if converting DOC to DOCX or XLS to XLSX
                 if (destFileExtension == ".DOCX" || destFileExtension == ".XLSX")
                 {
-                    if (_sourceFilenames.Count != 1)
+                    _conversionThread = null;
+
+                    if (_sourceFilenames.Count == 1)
                     {
-                        DemosTools.ShowInfoMessage("For this destination file type specify exactly one source file.");
-                        return;
+                        // choose a conversion type
+                        if (sourceFileExtension == ".DOC" && destFileExtension == ".DOCX")
+                            _conversionThread = new Thread(ConvertDocToDocxThread);
+                        else if (sourceFileExtension == ".XLS" && destFileExtension == ".XLSX")
+                            _conversionThread = new Thread(ConvertXlsToXlsxThread);
+                        else if ((sourceFileExtension == ".TSV" || sourceFileExtension == ".TAB") &&
+                             destFileExtension == ".XLSX")
+                            _conversionThread = new Thread(ConvertTsvToXlsxThread);
+                        else if (sourceFileExtension == ".CSV" && destFileExtension == ".XLSX")
+                            _conversionThread = new Thread(ConvertCsvToXlsxThread);
                     }
 
-                    // choose a conversion type
-                    if (sourceFileExtension == ".DOC" && destFileExtension == ".DOCX")
-                        _conversionThread = new Thread(ConvertDocToDocxThread);
-                    else if (sourceFileExtension == ".XLS" && destFileExtension == ".XLSX")
-                        _conversionThread = new Thread(ConvertXlsToXlsxThread);
-                    else if ((sourceFileExtension == ".TSV" || sourceFileExtension == ".TAB") &&
-                         destFileExtension == ".XLSX")
-                        _conversionThread = new Thread(ConvertTsvToXlsxThread);
-                    else if (sourceFileExtension == ".CSV" && destFileExtension == ".XLSX")
-                        _conversionThread = new Thread(ConvertCsvToXlsxThread);
-                    else
+                    if (_conversionThread != null)
+                    {
+                        convertButton.Text = "Cancel";
+                        InvokeUpdateMainMenu(false);
+
+                        _conversionThread.IsBackground = true;
+                        // start the conversion thread
+                        _conversionThread.Start();
                         return;
-
-                    convertButton.Text = "Cancel";
-                    InvokeUpdateMainMenu(false);
-
-                    _conversionThread.IsBackground = true;
-                    // start the conversion thread
-                    _conversionThread.Start();
-                    return;
+                    }
+                    else if (destFileExtension == ".XLSX")
+                        return;
                 }
                 // if converting XLSX to TSV
                 if (sourceFileExtension == ".XLSX" &&
@@ -1091,7 +1094,7 @@ namespace ImageConverterDemo
             }
             else
             {
-                InvokeLogMessage(string.Format("Conversion successfully finished: {0} ms.", Math.Round(conversionTime.TotalMilliseconds)));
+                InvokeLogMessage(string.Format("Conversion is finished successfully: {0} ms.", Math.Round(conversionTime.TotalMilliseconds)));
             }
         }
 
