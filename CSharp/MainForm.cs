@@ -805,8 +805,8 @@ namespace ImageConverterDemo
 
                 string destFilename = _destFilename;
 
-                // if output file is not multipage
-                if (!isMultipageDestFile)
+                // if output file is not multipage and source has many images
+                if (!isMultipageDestFile && images.Count > 1)
                 {
                     // add page number to file name format string
                     destFilename = Path.Combine(Path.GetDirectoryName(destFilename), Path.GetFileNameWithoutExtension(destFilename) + "-{ImageNumber}" + Path.GetExtension(destFilename));
