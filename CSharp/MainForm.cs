@@ -496,6 +496,11 @@ namespace ImageConverterDemo
                         // choose a conversion type
                         if (sourceFileExtension == ".DOC" && destFileExtension == ".DOCX")
                             _conversionThread = new Thread(ConvertDocToDocxThread);
+                        if (sourceFileExtension == ".RTF" && destFileExtension == ".DOCX")
+                            _conversionThread = new Thread(ConvertRtfToDocxThread);
+                        else if ((sourceFileExtension == ".HTM" || sourceFileExtension == ".HTML") &&
+                             destFileExtension == ".DOCX")
+                            _conversionThread = new Thread(ConvertHtmlToDocxThread);
                         else if (sourceFileExtension == ".XLS" && destFileExtension == ".XLSX")
                             _conversionThread = new Thread(ConvertXlsToXlsxThread);
                         else if ((sourceFileExtension == ".TSV" || sourceFileExtension == ".TAB") &&
@@ -846,6 +851,46 @@ namespace ImageConverterDemo
             {
                 OnConversionStarting();
                 OpenXmlDocumentConverter.ConvertDocToDocx(_sourceFilenames[0], _destFilename);
+            }
+            catch (Exception ex)
+            {
+                DemosTools.ShowErrorMessage(ex);
+            }
+            finally
+            {
+                OnConversionFinish();
+            }
+        }
+
+        /// <summary>
+        /// A thread method that converts a RTF file to a DOCX file.
+        /// </summary>
+        private void ConvertRtfToDocxThread()
+        {
+            try
+            {
+                OnConversionStarting();
+                OpenXmlDocumentConverter.ConvertRtfToDocx(_sourceFilenames[0], _destFilename);
+            }
+            catch (Exception ex)
+            {
+                DemosTools.ShowErrorMessage(ex);
+            }
+            finally
+            {
+                OnConversionFinish();
+            }
+        }
+
+        /// <summary>
+        /// A thread method that converts a HTML file to a DOCX file.
+        /// </summary>
+        private void ConvertHtmlToDocxThread()
+        {
+            try
+            {
+                OnConversionStarting();
+                OpenXmlDocumentConverter.ConvertHtmlToDocx(_sourceFilenames[0], _destFilename);
             }
             catch (Exception ex)
             {

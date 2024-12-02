@@ -37,6 +37,7 @@ namespace DemosCommonCode.Pdf
             this.pdfVersion = new System.Windows.Forms.ComboBox();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.linearizedCheckBox = new System.Windows.Forms.CheckBox();
+            this.compressedObjectStreamsCheckBox = new System.Windows.Forms.CheckBox();
             this.tableLayoutPanel1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -44,7 +45,7 @@ namespace DemosCommonCode.Pdf
             // 
             this.buttonCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.buttonCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.buttonCancel.Location = new System.Drawing.Point(223, 146);
+            this.buttonCancel.Location = new System.Drawing.Point(226, 166);
             this.buttonCancel.Name = "buttonCancel";
             this.buttonCancel.Size = new System.Drawing.Size(75, 27);
             this.buttonCancel.TabIndex = 3;
@@ -55,7 +56,7 @@ namespace DemosCommonCode.Pdf
             // okButton
             // 
             this.okButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.okButton.Location = new System.Drawing.Point(142, 146);
+            this.okButton.Location = new System.Drawing.Point(145, 166);
             this.okButton.Name = "okButton";
             this.okButton.Size = new System.Drawing.Size(75, 27);
             this.okButton.TabIndex = 2;
@@ -139,6 +140,7 @@ namespace DemosCommonCode.Pdf
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanel1.Controls.Add(this.compressedObjectStreamsCheckBox, 0, 5);
             this.tableLayoutPanel1.Controls.Add(this.binaryFormat, 0, 3);
             this.tableLayoutPanel1.Controls.Add(this.securityButton, 1, 1);
             this.tableLayoutPanel1.Controls.Add(this.compressedCrossReferenceTable, 0, 2);
@@ -148,13 +150,14 @@ namespace DemosCommonCode.Pdf
             this.tableLayoutPanel1.Location = new System.Drawing.Point(9, 9);
             this.tableLayoutPanel1.Margin = new System.Windows.Forms.Padding(0);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
-            this.tableLayoutPanel1.RowCount = 5;
+            this.tableLayoutPanel1.RowCount = 6;
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(292, 129);
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(292, 152);
             this.tableLayoutPanel1.TabIndex = 5;
             // 
             // linearizedCheckBox
@@ -163,10 +166,21 @@ namespace DemosCommonCode.Pdf
             this.tableLayoutPanel1.SetColumnSpan(this.linearizedCheckBox, 3);
             this.linearizedCheckBox.Location = new System.Drawing.Point(3, 105);
             this.linearizedCheckBox.Name = "linearizedCheckBox";
-            this.linearizedCheckBox.Size = new System.Drawing.Size(90, 17);
+            this.linearizedCheckBox.Size = new System.Drawing.Size(109, 17);
             this.linearizedCheckBox.TabIndex = 18;
             this.linearizedCheckBox.Text = "Linearized Format";
             this.linearizedCheckBox.UseVisualStyleBackColor = true;
+            // 
+            // compressedObjectStreamsCheckBox
+            // 
+            this.compressedObjectStreamsCheckBox.AutoSize = true;
+            this.tableLayoutPanel1.SetColumnSpan(this.compressedObjectStreamsCheckBox, 3);
+            this.compressedObjectStreamsCheckBox.Location = new System.Drawing.Point(3, 128);
+            this.compressedObjectStreamsCheckBox.Name = "compressedObjectStreamsCheckBox";
+            this.compressedObjectStreamsCheckBox.Size = new System.Drawing.Size(207, 17);
+            this.compressedObjectStreamsCheckBox.TabIndex = 19;
+            this.compressedObjectStreamsCheckBox.Text = "Compressed Object Streams (PDF 1.5)";
+            this.compressedObjectStreamsCheckBox.UseVisualStyleBackColor = true;
             // 
             // SelectPdfFormatForm
             // 
@@ -174,7 +188,7 @@ namespace DemosCommonCode.Pdf
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSize = true;
             this.CancelButton = this.buttonCancel;
-            this.ClientSize = new System.Drawing.Size(310, 185);
+            this.ClientSize = new System.Drawing.Size(310, 205);
             this.Controls.Add(this.tableLayoutPanel1);
             this.Controls.Add(this.buttonCancel);
             this.Controls.Add(this.okButton);
@@ -202,5 +216,6 @@ namespace DemosCommonCode.Pdf
         private System.Windows.Forms.Button securityButton;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
         private System.Windows.Forms.CheckBox linearizedCheckBox;
+        private System.Windows.Forms.CheckBox compressedObjectStreamsCheckBox;
     }
 }

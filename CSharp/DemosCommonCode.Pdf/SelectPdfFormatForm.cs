@@ -26,9 +26,15 @@ namespace DemosCommonCode.Pdf
             _format = initialFormat;
             pdfVersion.SelectedItem = _format.Version;
             if (pdfVersion.SelectedIndex > 4)
+            {
                 compressedCrossReferenceTable.Checked = _format.CompressedCrossReferenceTable;
+                compressedObjectStreamsCheckBox.Checked = compressedCrossReferenceTable.Checked;
+            }
             else
+            {
                 compressedCrossReferenceTable.Checked = false;
+                compressedObjectStreamsCheckBox.Checked = false;
+            }
 
             if (initialFormat.VersionNumber >= 12)
                 linearizedCheckBox.Checked = _format.LinearizedFormat;
@@ -78,7 +84,7 @@ namespace DemosCommonCode.Pdf
         /// </summary>
         private void okButton_Click(object sender, EventArgs e)
         {
-            _format = new PdfFormat(pdfVersion.SelectedItem.ToString(), compressedCrossReferenceTable.Checked, binaryFormat.Checked, linearizedCheckBox.Checked);
+            _format = new PdfFormat(pdfVersion.SelectedItem.ToString(), compressedCrossReferenceTable.Checked, compressedObjectStreamsCheckBox.Checked, binaryFormat.Checked, linearizedCheckBox.Checked);
             DialogResult = System.Windows.Forms.DialogResult.OK;
             Close();
         }
@@ -98,15 +104,20 @@ namespace DemosCommonCode.Pdf
         private void pdfVersion_SelectedIndexChanged(object sender, EventArgs e)
         {
             securityButton.Enabled = pdfVersion.SelectedIndex >= 1;
+            binaryFormat.Checked = true;
             if (pdfVersion.SelectedIndex > 4)
             {
-                compressedCrossReferenceTable.Checked = _format.CompressedCrossReferenceTable;
+                compressedCrossReferenceTable.Checked = true;
                 compressedCrossReferenceTable.Enabled = true;
+                compressedObjectStreamsCheckBox.Checked = true;
+                compressedObjectStreamsCheckBox.Enabled = true;
             }
             else
             {
                 compressedCrossReferenceTable.Checked = false;
                 compressedCrossReferenceTable.Enabled = false;
+                compressedObjectStreamsCheckBox.Checked = false;
+                compressedObjectStreamsCheckBox.Enabled = false;
             }
             if (pdfVersion.SelectedIndex >= 2)
             {
