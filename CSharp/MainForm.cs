@@ -15,14 +15,19 @@ using Vintasoft.Imaging.ColorManagement;
 using Vintasoft.Imaging.Utils;
 using Vintasoft.Imaging.Codecs.Decoders;
 using Vintasoft.Imaging.Codecs.Encoders;
+
 #if !REMOVE_PDF_PLUGIN
 using DemosCommonCode.Pdf;
+
 using Vintasoft.Imaging.Pdf;
-using Vintasoft.Imaging.Pdf.Security;
 using Vintasoft.Imaging.Pdf.Processing;
+
+
+
 #endif
 #if !REMOVE_OFFICE_PLUGIN
 using Vintasoft.Imaging.Office.OpenXml;
+using Vintasoft.Imaging.Office.OpenXml.Editor.Xlsx;
 #endif
 
 namespace ImageConverterDemo
@@ -144,7 +149,11 @@ namespace ImageConverterDemo
 #if !REMOVE_OFFICE_PLUGIN && !REMOVE_PDF_PLUGIN
             // if DOCX encoder is available
             if (AvailableEncoders.IsEncoderAvailable("Docx"))
+            {
                 saveFileDialog1.Filter += "|" + "DOCX files|*.docx";
+                // ��������� ���������� � HTML
+                saveFileDialog1.Filter += "|" + "HTML files|*.html;*.htm";
+            }
 #endif
 
             // set color management decoding settings
@@ -384,7 +393,8 @@ namespace ImageConverterDemo
                 // if the source file extension is XLS
                 if (sourceFileExtension == ".XLS" ||
                     sourceFileExtension == ".TSV" || sourceFileExtension == ".TAB" ||
-                    sourceFileExtension == ".CSV")
+                    sourceFileExtension == ".CSV" ||
+                    sourceFileExtension == ".ODS")
                 {
                     // set a new filter with an option to save to XLSX file
                     saveFileDialog1.Filter = string.Format("{0}|{1}", saveFileDialog1.Filter, "XLSX files|*.xlsx");
@@ -496,11 +506,13 @@ namespace ImageConverterDemo
                         // choose a conversion type
                         if (sourceFileExtension == ".DOC" && destFileExtension == ".DOCX")
                             _conversionThread = new Thread(ConvertDocToDocxThread);
-                        if (sourceFileExtension == ".RTF" && destFileExtension == ".DOCX")
+                        else if (sourceFileExtension == ".RTF" && destFileExtension == ".DOCX")
                             _conversionThread = new Thread(ConvertRtfToDocxThread);
                         else if ((sourceFileExtension == ".HTM" || sourceFileExtension == ".HTML") &&
                              destFileExtension == ".DOCX")
                             _conversionThread = new Thread(ConvertHtmlToDocxThread);
+                        else if (sourceFileExtension == ".ODT" && destFileExtension == ".DOCX")
+                            _conversionThread = new Thread(ConvertOdtToDocxThread);
                         else if (sourceFileExtension == ".XLS" && destFileExtension == ".XLSX")
                             _conversionThread = new Thread(ConvertXlsToXlsxThread);
                         else if ((sourceFileExtension == ".TSV" || sourceFileExtension == ".TAB") &&
@@ -508,6 +520,8 @@ namespace ImageConverterDemo
                             _conversionThread = new Thread(ConvertTsvToXlsxThread);
                         else if (sourceFileExtension == ".CSV" && destFileExtension == ".XLSX")
                             _conversionThread = new Thread(ConvertCsvToXlsxThread);
+                        else if (sourceFileExtension == ".ODS" && destFileExtension == ".XLSX")
+                            _conversionThread = new Thread(ConvertOdsToXlsxThread);
                     }
 
                     if (_conversionThread != null)
@@ -552,6 +566,26 @@ namespace ImageConverterDemo
                     }
 
                     _conversionThread = new Thread(ConvertXlsxToCsvThread);
+                    convertButton.Text = "Cancel";
+                    InvokeUpdateMainMenu(false);
+
+                    _conversionThread.IsBackground = true;
+                    // start the conversion thread
+                    _conversionThread.Start();
+                    return;
+                }
+                // if converting DOCX to HTML
+                if (sourceFileExtension == ".DOCX" && (destFileExtension == ".HTM" || destFileExtension == ".HTML"))
+                {
+                    _conversionThread = null;
+
+                    if (_sourceFilenames.Count != 1)
+                    {
+                        DemosTools.ShowInfoMessage("For this destination file type specify exactly one source file.");
+                        return;
+                    }
+
+                    _conversionThread = new Thread(ConvertDocxToHtmlThread);
                     convertButton.Text = "Cancel";
                     InvokeUpdateMainMenu(false);
 
@@ -843,6 +877,42 @@ namespace ImageConverterDemo
 
 #if !REMOVE_OFFICE_PLUGIN
         /// <summary>
+        /// A thread method that converts a XLSX file to a CSV/TSV file.
+        /// </summary>
+        /// <param name="inputFileName">The filename of input XLSX document.</param>
+        /// <param name="outputFilename">The filename of output CSV/TSV file.</param>
+        private void ConvertXlsxToTsvCsv(string inputFileName, string outputFilename)
+        {
+            int worksheetCount = 0;
+            using (XlsxDocumentEditor editor = new XlsxDocumentEditor(inputFileName))
+                worksheetCount = editor.Sheets.Length;
+
+            bool isCsv = false;
+            if (string.Equals(Path.GetExtension(outputFilename), ".CSV", StringComparison.InvariantCultureIgnoreCase))
+                isCsv = true;
+
+            string destFilename = outputFilename;
+
+            for (int worksheetIndex = 0; worksheetIndex < worksheetCount; worksheetIndex++)
+            {
+                if (worksheetCount > 1)
+                {
+                    // add page number to file name format string
+                    destFilename = Path.Combine(Path.GetDirectoryName(outputFilename), Path.GetFileNameWithoutExtension(outputFilename) + "-" + worksheetIndex.ToString() + Path.GetExtension(outputFilename));
+                    InvokeLogMessage("Destination filename changed to:");
+                    InvokeLogMessage(destFilename);
+                }
+
+                InvokeLogMessage("Conversion....");
+
+                if (isCsv)
+                    OpenXmlDocumentConverter.ConvertXlsxToCsv(inputFileName, worksheetIndex, destFilename, System.Text.Encoding.UTF8);
+                else
+                    OpenXmlDocumentConverter.ConvertXlsxToTsv(inputFileName, worksheetIndex, destFilename);
+            }
+        }
+
+        /// <summary>
         /// A thread method that converts a DOC file to a DOCX file.
         /// </summary>
         private void ConvertDocToDocxThread()
@@ -903,6 +973,48 @@ namespace ImageConverterDemo
         }
 
         /// <summary>
+        /// A thread method that converts a DOCX file to a HTML file.
+        /// </summary>
+        private void ConvertDocxToHtmlThread()
+        {
+            try
+            {
+                OnConversionStarting();
+                HtmlConverterSettings settings = new HtmlConverterSettings();
+                settings.EmbedResources = true;
+                OpenXmlDocumentConverter.ConvertDocxToHtml(_sourceFilenames[0], _destFilename, settings);
+            }
+            catch (Exception ex)
+            {
+                DemosTools.ShowErrorMessage(ex);
+            }
+            finally
+            {
+                OnConversionFinish();
+            }
+        }
+
+        /// <summary>
+        /// A thread method that converts a ODT file to a DOCX file.
+        /// </summary>
+        private void ConvertOdtToDocxThread()
+        {
+            try
+            {
+                OnConversionStarting();
+                OpenXmlDocumentConverter.ConvertOdtToDocx(_sourceFilenames[0], _destFilename);
+            }
+            catch (Exception ex)
+            {
+                DemosTools.ShowErrorMessage(ex);
+            }
+            finally
+            {
+                OnConversionFinish();
+            }
+        }
+
+        /// <summary>
         /// A thread method that converts an XLS file to an XLSX file.
         /// </summary>
         private void ConvertXlsToXlsxThread()
@@ -930,7 +1042,7 @@ namespace ImageConverterDemo
             try
             {
                 OnConversionStarting();
-                OpenXmlDocumentConverter.ConvertXlsxToTsv(_sourceFilenames[0], 0, _destFilename);
+                ConvertXlsxToTsvCsv(_sourceFilenames[0], _destFilename);
             }
             catch (Exception ex)
             {
@@ -950,7 +1062,7 @@ namespace ImageConverterDemo
             try
             {
                 OnConversionStarting();
-                OpenXmlDocumentConverter.ConvertXlsxToCsv(_sourceFilenames[0], 0, _destFilename, System.Text.Encoding.UTF8);
+                ConvertXlsxToTsvCsv(_sourceFilenames[0], _destFilename);
             }
             catch (Exception ex)
             {
@@ -991,6 +1103,26 @@ namespace ImageConverterDemo
             {
                 OnConversionStarting();
                 OpenXmlDocumentConverter.ConvertCsvToXlsx(_sourceFilenames[0], _destFilename);
+            }
+            catch (Exception ex)
+            {
+                DemosTools.ShowErrorMessage(ex);
+            }
+            finally
+            {
+                OnConversionFinish();
+            }
+        }
+
+        /// <summary>
+        /// A thread method that converts an ODS file to an XLSX file.
+        /// </summary>
+        private void ConvertOdsToXlsxThread()
+        {
+            try
+            {
+                OnConversionStarting();
+                OpenXmlDocumentConverter.ConvertOdsToXlsx(_sourceFilenames[0], _destFilename);
             }
             catch (Exception ex)
             {
