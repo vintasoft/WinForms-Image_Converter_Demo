@@ -151,7 +151,6 @@ namespace ImageConverterDemo
             if (AvailableEncoders.IsEncoderAvailable("Docx"))
             {
                 saveFileDialog1.Filter += "|" + "DOCX files|*.docx";
-                // ��������� ���������� � HTML
                 saveFileDialog1.Filter += "|" + "HTML files|*.html;*.htm";
             }
 #endif
