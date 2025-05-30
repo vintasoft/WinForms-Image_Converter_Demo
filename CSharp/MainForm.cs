@@ -150,8 +150,11 @@ namespace ImageConverterDemo
             // if DOCX encoder is available
             if (AvailableEncoders.IsEncoderAvailable("Docx"))
             {
+                openFileDialog1.Filter += ";*.zip|" + "Zipped HTML files|*.zip";
+
                 saveFileDialog1.Filter += "|" + "DOCX files|*.docx";
                 saveFileDialog1.Filter += "|" + "HTML files|*.html;*.htm";
+                saveFileDialog1.Filter += "|" + "Zipped HTML files|*.zip";
             }
 #endif
 
@@ -507,7 +510,7 @@ namespace ImageConverterDemo
                             _conversionThread = new Thread(ConvertDocToDocxThread);
                         else if (sourceFileExtension == ".RTF" && destFileExtension == ".DOCX")
                             _conversionThread = new Thread(ConvertRtfToDocxThread);
-                        else if ((sourceFileExtension == ".HTM" || sourceFileExtension == ".HTML") &&
+                        else if ((sourceFileExtension == ".HTM" || sourceFileExtension == ".HTML" || sourceFileExtension == ".ZIP") &&
                              destFileExtension == ".DOCX")
                             _conversionThread = new Thread(ConvertHtmlToDocxThread);
                         else if (sourceFileExtension == ".ODT" && destFileExtension == ".DOCX")
@@ -574,7 +577,7 @@ namespace ImageConverterDemo
                     return;
                 }
                 // if converting DOCX to HTML
-                if (sourceFileExtension == ".DOCX" && (destFileExtension == ".HTM" || destFileExtension == ".HTML"))
+                if (sourceFileExtension == ".DOCX" && (destFileExtension == ".HTM" || destFileExtension == ".HTML" || destFileExtension == ".ZIP"))
                 {
                     _conversionThread = null;
 
@@ -584,7 +587,10 @@ namespace ImageConverterDemo
                         return;
                     }
 
-                    _conversionThread = new Thread(ConvertDocxToHtmlThread);
+                    if (destFileExtension == ".ZIP")
+                        _conversionThread = new Thread(ConvertDocxToZippedHtmlThread);
+                    else
+                        _conversionThread = new Thread(ConvertDocxToHtmlThread);
                     convertButton.Text = "Cancel";
                     InvokeUpdateMainMenu(false);
 
@@ -981,6 +987,41 @@ namespace ImageConverterDemo
                 OnConversionStarting();
                 HtmlConverterSettings settings = new HtmlConverterSettings();
                 settings.EmbedResources = true;
+
+                using (HtmlConverterSettingsForm form = new HtmlConverterSettingsForm(settings))
+                {
+                    form.ShowDialog();
+                }
+
+                OpenXmlDocumentConverter.ConvertDocxToHtml(_sourceFilenames[0], _destFilename, settings);
+            }
+            catch (Exception ex)
+            {
+                DemosTools.ShowErrorMessage(ex);
+            }
+            finally
+            {
+                OnConversionFinish();
+            }
+        }
+
+        /// <summary>
+        /// A thread method that converts a DOCX file to a zipped HTML file.
+        /// </summary>
+        private void ConvertDocxToZippedHtmlThread()
+        {
+            try
+            {
+                OnConversionStarting();
+                HtmlConverterSettings settings = new HtmlConverterSettings();
+                settings.DocumentFormat = HtmlDocumentFormat.ZippedHtmlDocument;
+                settings.EmbedResources = true;
+
+                using (HtmlConverterSettingsForm form = new HtmlConverterSettingsForm(settings))
+                {
+                    form.ShowDialog();
+                }
+
                 OpenXmlDocumentConverter.ConvertDocxToHtml(_sourceFilenames[0], _destFilename, settings);
             }
             catch (Exception ex)
