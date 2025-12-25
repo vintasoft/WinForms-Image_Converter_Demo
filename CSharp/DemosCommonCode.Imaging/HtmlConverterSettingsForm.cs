@@ -1,10 +1,13 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Windows.Forms;
 
 using DemosCommonCode.Imaging.Codecs.Dialogs;
 
 using Vintasoft.Imaging.Codecs.Encoders;
+#if !REMOVE_OFFICE_PLUGIN
 using Vintasoft.Imaging.Office.OpenXml;
+#endif
 
 namespace ImageConverterDemo
 {
@@ -14,12 +17,7 @@ namespace ImageConverterDemo
     public partial class HtmlConverterSettingsForm : Form
     {
 
-        #region Fields
-
-        /// <summary>
-        /// The HTML converter settings.
-        /// </summary>
-        HtmlConverterSettings _converterSettings;
+        #region Fields     
 
         /// <summary>
         /// The images encoding settings.
@@ -36,32 +34,56 @@ namespace ImageConverterDemo
         /// Initializes a new instance of the <see cref="HtmlConverterSettingsForm"/> class.
         /// </summary>
         /// <param name="converterSettings">The HTML converter settings.</param>
-        public HtmlConverterSettingsForm(HtmlConverterSettings converterSettings)
+        public HtmlConverterSettingsForm()
         {
             InitializeComponent();
+        }
 
-            _converterSettings = converterSettings;
+        #endregion
 
-            embedResourcesCheckBox.Checked = converterSettings.EmbedResources;
 
-            // if image encoding settings are specified
-            if (converterSettings.ImagesEncodingSettings != null)
+
+        #region Properties
+
+#if !REMOVE_OFFICE_PLUGIN
+
+        HtmlConverterSettings _converterSettings;
+        /// <summary>
+        /// Gets or sets the HTML converter settings.
+        /// </summary>
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public HtmlConverterSettings ConverterSettings
+        {
+            get
             {
-                // copy image encoding settings
-                _imagesEncodingSettings = (EncoderSettings)converterSettings.ImagesEncodingSettings.Clone();
-
-                if (converterSettings.ImagesEncodingSettings is PngEncoderSettings)
-                    imagesEncoderComboBox.SelectedIndex = 1;
-                else if (converterSettings.ImagesEncodingSettings is GifEncoderSettings)
-                    imagesEncoderComboBox.SelectedIndex = 2;
-                else if (converterSettings.ImagesEncodingSettings is JpegEncoderSettings)
-                    imagesEncoderComboBox.SelectedIndex = 3;
+                return _converterSettings;
             }
-            else
+            set
             {
-                imagesEncoderComboBox.SelectedIndex = 0;
+                _converterSettings = value;
+
+                embedResourcesCheckBox.Checked = _converterSettings.EmbedResources;
+
+                // if image encoding settings are specified
+                if (_converterSettings.ImagesEncodingSettings != null)
+                {
+                    // copy image encoding settings
+                    _imagesEncodingSettings = (EncoderSettings)_converterSettings.ImagesEncodingSettings.Clone();
+
+                    if (_converterSettings.ImagesEncodingSettings is PngEncoderSettings)
+                        imagesEncoderComboBox.SelectedIndex = 1;
+                    else if (_converterSettings.ImagesEncodingSettings is GifEncoderSettings)
+                        imagesEncoderComboBox.SelectedIndex = 2;
+                    else if (_converterSettings.ImagesEncodingSettings is JpegEncoderSettings)
+                        imagesEncoderComboBox.SelectedIndex = 3;
+                }
+                else
+                {
+                    imagesEncoderComboBox.SelectedIndex = 0;
+                }
             }
         }
+#endif
 
         #endregion
 
@@ -74,8 +96,10 @@ namespace ImageConverterDemo
         /// </summary>
         private void okButton_Click(object sender, EventArgs e)
         {
+#if !REMOVE_OFFICE_PLUGIN
             _converterSettings.EmbedResources = embedResourcesCheckBox.Checked;
             _converterSettings.ImagesEncodingSettings = _imagesEncodingSettings;
+#endif
 
             DialogResult = DialogResult.OK;
         }
@@ -85,6 +109,7 @@ namespace ImageConverterDemo
         /// </summary>
         private void imagesEncoderComboBox_SelectedIndexChanged(object sender, EventArgs e)
         {
+#if !REMOVE_OFFICE_PLUGIN
             imagesEncodingSettingsButton.Enabled = true;
 
             switch (imagesEncoderComboBox.SelectedIndex)
@@ -121,6 +146,7 @@ namespace ImageConverterDemo
                 default:
                     break;
             }
+#endif
         }
 
         /// <summary>

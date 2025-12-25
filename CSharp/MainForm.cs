@@ -11,6 +11,7 @@ using DemosCommonCode.Imaging.Codecs;
 using DemosCommonCode.Imaging.ColorManagement;
 
 using Vintasoft.Imaging;
+using Vintasoft.Imaging.Html;
 using Vintasoft.Imaging.ColorManagement;
 using Vintasoft.Imaging.Utils;
 using Vintasoft.Imaging.Codecs.Decoders;
@@ -988,8 +989,9 @@ namespace ImageConverterDemo
                 HtmlConverterSettings settings = new HtmlConverterSettings();
                 settings.EmbedResources = true;
 
-                using (HtmlConverterSettingsForm form = new HtmlConverterSettingsForm(settings))
+                using (HtmlConverterSettingsForm form = new HtmlConverterSettingsForm())
                 {
+                    form.ConverterSettings = settings;
                     form.ShowDialog();
                 }
 
@@ -1017,8 +1019,9 @@ namespace ImageConverterDemo
                 settings.DocumentFormat = HtmlDocumentFormat.ZippedHtmlDocument;
                 settings.EmbedResources = true;
 
-                using (HtmlConverterSettingsForm form = new HtmlConverterSettingsForm(settings))
+                using (HtmlConverterSettingsForm form = new HtmlConverterSettingsForm())
                 {
+                    form.ConverterSettings = settings;
                     form.ShowDialog();
                 }
 
