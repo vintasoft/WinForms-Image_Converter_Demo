@@ -1,4 +1,4 @@
-# VintaSoft WinForms Image Converter Demo
+﻿# VintaSoft WinForms Image Converter Demo
 
 This C# project uses <a href="https://www.vintasoft.com/vsimaging-dotnet-index.html">VintaSoft Imaging .NET SDK</a> and demonstrates how to convert images and documents:
 * Convert all supported image and document file formats back and forth.
@@ -19,9 +19,9 @@ This C# project uses <a href="https://www.vintasoft.com/vsimaging-dotnet-index.h
    Vintasoft.Imaging.ImagingGlobalSettings.Register("REG_USER", "REG_EMAIL", "EXPIRATION_DATE", "REG_CODE");
    ```
 
-3. Build the project ("ImageConverterDemo.Net8.csproj" file) in Visual Studio or using .NET CLI:
+3. Build the project ("ImageConverterDemo.Net10.csproj" file) in Visual Studio or using .NET CLI:
    ```
-   dotnet build ImageConverterDemo.Net8.csproj
+   dotnet build ImageConverterDemo.Net10.csproj
    ```
 
 4. Run compiled application and try to convert images and documents.
