@@ -124,9 +124,9 @@
 
 - Progress indicating: image loading/encoding, total. 
 
-- Input file format: BMP, DICOM, DOC, DOCX, XLS, XLSX, EMF, GIF, Icon, JBIG2, JPEG, JPEG-LS, JPEG2000, PBM, PCX, PDF, PNG,  RAW, TGA, TIFF, WMF, WEBP(.NET Core 3.1 or higher).
+- Input file format: BMP, DICOM, DOC, DOCX, XLS, XLSX, EMF, GIF, Icon, JBIG2, JPEG, JPEG-LS, JPEG2000, PBM, PCX, PDF, PNG,  RAW, TGA, TIFF, WMF, WEBP(.NET 6 or higher).
 
-- Output file format: BMP, DOCX (only for DOC), XLSX (only for XLS), GIF, JBIG2, JPEG, JPEG2000, PBM, PCX, PDF, PNG, SVG, TGA, TIFF, WEBP(.NET Core 3.1 or higher).
+- Output file format: BMP, DOCX (only for DOC), XLSX (only for XLS), GIF, JBIG2, JPEG, JPEG2000, PBM, PCX, PDF, PNG, SVG, TGA, TIFF, WEBP(.NET 6 or higher).
 
 
 The project is available in C# and VB.NET for Visual Studio .NET.</value>
