@@ -1,4 +1,4 @@
-#if REMOVE_PDF_PLUGIN
+﻿#if REMOVE_PDF_PLUGIN
 #error Remove SecuritySettingsForm from project.
 #endif
 
@@ -8,7 +8,7 @@ using System.Windows.Forms;
 using Vintasoft.Imaging.Pdf.Security;
 using Vintasoft.Imaging.Pdf;
 
-namespace DemosCommonCode.Pdf.Security
+namespace CommonCode.Pdf.Security
 {
     /// <summary>
     /// A form that allows to edit the security properties of PDF document.

@@ -5,10 +5,10 @@ using System.IO;
 using System.Threading;
 using System.Windows.Forms;
 
-using DemosCommonCode;
-using DemosCommonCode.Imaging;
-using DemosCommonCode.Imaging.Codecs;
-using DemosCommonCode.Imaging.ColorManagement;
+using CommonCode;
+using CommonCode.Imaging;
+using CommonCode.Imaging.Codecs;
+using CommonCode.Imaging.ColorManagement;
 
 using Vintasoft.Imaging;
 using Vintasoft.Imaging.Html;
@@ -18,7 +18,7 @@ using Vintasoft.Imaging.Codecs.Decoders;
 using Vintasoft.Imaging.Codecs.Encoders;
 
 #if !REMOVE_PDF_PLUGIN
-using DemosCommonCode.Pdf;
+using CommonCode.Pdf;
 
 using Vintasoft.Imaging.Pdf;
 using Vintasoft.Imaging.Pdf.Processing;

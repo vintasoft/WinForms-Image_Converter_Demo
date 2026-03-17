@@ -8,9 +8,9 @@ using System.Windows.Forms;
 using Vintasoft.Imaging.Pdf;
 using Vintasoft.Imaging.Pdf.Security;
 
-using DemosCommonCode.Pdf.Security;
+using CommonCode.Pdf.Security;
 
-namespace DemosCommonCode.Pdf
+namespace CommonCode.Pdf
 {
     /// <summary>
     /// A form that allows to select format of PDF document.

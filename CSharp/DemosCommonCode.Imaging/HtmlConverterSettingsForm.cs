@@ -2,7 +2,7 @@
 using System.ComponentModel;
 using System.Windows.Forms;
 
-using DemosCommonCode.Imaging.Codecs.Dialogs;
+using CommonCode.Imaging.Codecs.Dialogs;
 
 using Vintasoft.Imaging.Codecs.Encoders;
 #if !REMOVE_OFFICE_PLUGIN
