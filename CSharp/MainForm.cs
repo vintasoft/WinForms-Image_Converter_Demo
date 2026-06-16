@@ -113,15 +113,10 @@ namespace ImageConverterDemo
         #region Constructors
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="MainForm"/> class.
+        /// Initializes the <see cref="MainForm"/> class.
         /// </summary>
-        public MainForm()
+        static MainForm()
         {
-            // register the evaluation license for VintaSoft Imaging .NET SDK
-            Vintasoft.Imaging.ImagingGlobalSettings.Register("REG_USER", "REG_EMAIL", "EXPIRATION_DATE", "REG_CODE");
-
-            InitializeComponent();
-
             Jbig2AssemblyLoader.Load();
             Jpeg2000AssemblyLoader.Load();
             RawAssemblyLoader.Load();
@@ -130,10 +125,23 @@ namespace ImageConverterDemo
             PdfAnnotationsAssemblyLoader.Load();
             DocxAssemblyLoader.Load();
             PdfOfficeAssemblyLoader.Load();
+            WsiCodecAssemblyLoader.Load();
+            CadCodecAssemblyLoader.Load();
 
             // set CustomFontProgramsController for all opened documents
             CustomFontProgramsController.SetDefaultFontProgramsController();
+        }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MainForm"/> class.
+        /// </summary>
+        public MainForm()
+        {
+            // register the evaluation license for VintaSoft Imaging .NET SDK
+            Vintasoft.Imaging.ImagingGlobalSettings.Register("REG_USER", "REG_EMAIL", "EXPIRATION_DATE", "REG_CODE");
+
+            InitializeComponent();
+           
             // set application's title
             Text = string.Format("VintaSoft Image Converter Demo v{0}", ImagingGlobalSettings.ProductVersion);
 
