@@ -128,6 +128,10 @@ namespace ImageConverterDemo
             WsiCodecAssemblyLoader.Load();
             CadCodecAssemblyLoader.Load();
 
+#if !REMOVE_OFFICE_PLUGIN
+            XlsxConverterSettings.Default.ColumnAutoFit = true;
+#endif
+
             // set CustomFontProgramsController for all opened documents
             CustomFontProgramsController.SetDefaultFontProgramsController();
         }
