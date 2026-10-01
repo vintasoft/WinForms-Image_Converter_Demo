@@ -57,6 +57,8 @@ namespace ImageConverterDemo
             this.sourceFilenamesListBox = new System.Windows.Forms.ListBox();
             this.removeSourceFileButton = new System.Windows.Forms.Button();
             this.clearSourceFilesButton = new System.Windows.Forms.Button();
+            this.htmlToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.emailToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -84,7 +86,7 @@ namespace ImageConverterDemo
             // 
             this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
             this.exitToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Alt | System.Windows.Forms.Keys.X)));
-            this.exitToolStripMenuItem.Size = new System.Drawing.Size(130, 22);
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.exitToolStripMenuItem.Text = "Exit";
             this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
             // 
@@ -117,7 +119,9 @@ namespace ImageConverterDemo
             // 
             this.layoutSettingsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.docxToolStripMenuItem,
-            this.xlsxToolStripMenuItem});
+            this.xlsxToolStripMenuItem,
+            this.htmlToolStripMenuItem,
+            this.emailToolStripMenuItem});
             this.layoutSettingsToolStripMenuItem.Name = "layoutSettingsToolStripMenuItem";
             this.layoutSettingsToolStripMenuItem.Size = new System.Drawing.Size(274, 22);
             this.layoutSettingsToolStripMenuItem.Text = "Layout Settings...";
@@ -125,14 +129,14 @@ namespace ImageConverterDemo
             // docxToolStripMenuItem
             // 
             this.docxToolStripMenuItem.Name = "docxToolStripMenuItem";
-            this.docxToolStripMenuItem.Size = new System.Drawing.Size(115, 22);
+            this.docxToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.docxToolStripMenuItem.Text = "DOCX...";
             this.docxToolStripMenuItem.Click += new System.EventHandler(this.docxToolStripMenuItem_Click);
             // 
             // xlsxToolStripMenuItem
             // 
             this.xlsxToolStripMenuItem.Name = "xlsxToolStripMenuItem";
-            this.xlsxToolStripMenuItem.Size = new System.Drawing.Size(115, 22);
+            this.xlsxToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.xlsxToolStripMenuItem.Text = "XLSX...";
             this.xlsxToolStripMenuItem.Click += new System.EventHandler(this.xlsxToolStripMenuItem_Click);
             // 
@@ -308,6 +312,20 @@ namespace ImageConverterDemo
             this.clearSourceFilesButton.UseVisualStyleBackColor = true;
             this.clearSourceFilesButton.Click += new System.EventHandler(this.clearSourceFilesButton_Click);
             // 
+            // htmlToolStripMenuItem
+            // 
+            this.htmlToolStripMenuItem.Name = "htmlToolStripMenuItem";
+            this.htmlToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.htmlToolStripMenuItem.Text = "HTML...";
+            this.htmlToolStripMenuItem.Click += new System.EventHandler(this.htmlToolStripMenuItem_Click);
+            // 
+            // emailToolStripMenuItem
+            // 
+            this.emailToolStripMenuItem.Name = "emailToolStripMenuItem";
+            this.emailToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.emailToolStripMenuItem.Text = "Email...";
+            this.emailToolStripMenuItem.Click += new System.EventHandler(this.emailToolStripMenuItem_Click);
+            // 
             // MainForm
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
@@ -371,5 +389,7 @@ namespace ImageConverterDemo
         private System.Windows.Forms.ListBox sourceFilenamesListBox;
         private System.Windows.Forms.Button removeSourceFileButton;
         private System.Windows.Forms.Button clearSourceFilesButton;
+        private System.Windows.Forms.ToolStripMenuItem htmlToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem emailToolStripMenuItem;
     }
 }

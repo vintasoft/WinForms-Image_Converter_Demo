@@ -7,3 +7,4 @@ The project contains the following compiler directives:
 6. REMOVE_JPEG2000_PLUGIN - allows to disable code, which references to VintaSoft JPEG2000 .NET Plug-in
 7. REMOVE_OFFICE_PLUGIN - allows to disable code, which references to VintaSoft Office .NET Plug-in
 8. REMOVE_RAW_PLUGIN - allows to disable code, which references to VintaSoft RAW Codec
+9. REMOVE_EMAIL_CODEC - allows to disable code, which references to Vintasoft.Imaging.EmailCodec.dll

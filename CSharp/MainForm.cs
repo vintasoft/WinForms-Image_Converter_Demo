@@ -19,17 +19,19 @@ using Vintasoft.Imaging.Codecs.Encoders;
 
 #if !REMOVE_PDF_PLUGIN
 using CommonCode.Pdf;
-
 using Vintasoft.Imaging.Pdf;
 using Vintasoft.Imaging.Pdf.Processing;
-
-
-
 #endif
+
 #if !REMOVE_OFFICE_PLUGIN
 using Vintasoft.Imaging.Office.OpenXml;
 using Vintasoft.Imaging.Office.OpenXml.Editor.Xlsx;
 #endif
+
+#if !REMOVE_EMAIL_CODEC
+using Vintasoft.Imaging.Email;
+#endif
+
 
 namespace ImageConverterDemo
 {
@@ -87,16 +89,6 @@ namespace ImageConverterDemo
         Stopwatch _conversionTime = new Stopwatch();
 
         /// <summary>
-        /// Manages the layout settings of DOCX document image collections.
-        /// </summary>
-        ImageCollectionDocxLayoutSettingsManager _imageCollectionDocxLayoutSettingsManager;
-
-        /// <summary>
-        /// Manages the layout settings of XLSX document image collections.
-        /// </summary>
-        ImageCollectionXlsxLayoutSettingsManager _imageCollectionXlsxLayoutSettingsManager;
-
-        /// <summary>
         /// The encoded image count.
         /// </summary>
         int _encodedImageCount = 0;
@@ -127,6 +119,7 @@ namespace ImageConverterDemo
             PdfOfficeAssemblyLoader.Load();
             WsiCodecAssemblyLoader.Load();
             CadCodecAssemblyLoader.Load();
+            EmailCodecAssemblyLoader.Load();
 
 #if !REMOVE_OFFICE_PLUGIN
             XlsxConverterSettings.Default.ColumnAutoFit = true;
@@ -134,6 +127,15 @@ namespace ImageConverterDemo
 
             // set CustomFontProgramsController for all opened documents
             CustomFontProgramsController.SetDefaultFontProgramsController();
+
+#if !REMOVE_PDF_PLUGIN && !REMOVE_OFFICE_PLUGIN && !REMOVE_DOCCLEANUP_PLUGIN
+            // set Table detection command in PDF to DOCX converter
+            Vintasoft.Imaging.Pdf.Office.PdfToDocxConverter.DefaultTableDetectionCommand =
+                new Vintasoft.Imaging.ImageProcessing.Info.TableDetection.TableWithBordersDetectionCommand();
+            // register PdfLineRecognitionCommand that finds lines
+            // on vector PDF page if image is associated with PDF page
+            Vintasoft.Imaging.ImageProcessing.Info.PdfLineRecognitionCommand.Register();
+#endif
         }
 
         /// <summary>
@@ -145,7 +147,7 @@ namespace ImageConverterDemo
             Vintasoft.Imaging.ImagingGlobalSettings.Register("REG_USER", "REG_EMAIL", "EXPIRATION_DATE", "REG_CODE");
 
             InitializeComponent();
-           
+
             // set application's title
             Text = string.Format("VintaSoft Image Converter Demo v{0}", ImagingGlobalSettings.ProductVersion);
 
@@ -203,15 +205,26 @@ namespace ImageConverterDemo
                 new XlsxRenderingSettings());
 #endif
 
-#if !REMOVE_OFFICE_PLUGIN
-            // specify that image collection of image viewer must handle layout settings requests
-            _imageCollectionDocxLayoutSettingsManager = new ImageCollectionDocxLayoutSettingsManager(_documentConverter.Images);
-            _imageCollectionXlsxLayoutSettingsManager = new ImageCollectionXlsxLayoutSettingsManager(_documentConverter.Images);
-#else
+#if REMOVE_OFFICE_PLUGIN
             layoutSettingsToolStripMenuItem.Visible = false;
 #endif
 
+            // specify that SDK can download external resources
+            ImagingEnvironment.ExternalResourceManager.AllowAccessToExternalResources = true;
+            // subscribe to the ExternalResourceManager.VerifyResourceAccess event
+            ImagingEnvironment.ExternalResourceManager.CreatingResourceStream += ExternalResourceManager_CreatingResourceStream;
         }
+
+        #endregion
+
+
+
+        #region Methods
+
+        #region UI
+
+        #region Main form
+
 
         /// <summary>
         /// Handles the ProgressUpdated event of the ProgressActionHandler.
@@ -226,15 +239,16 @@ namespace ImageConverterDemo
             }
         }
 
-        #endregion
-
-
-
-        #region Methods
-
-        #region UI
-
-        #region Main form
+        /// <summary>
+        /// Handles the CreatingResourceStream event of the ExternalResourceManager.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="ExternalResourceStreamEventArgs"/> instance containing the event data.</param>
+        private void ExternalResourceManager_CreatingResourceStream(object sender, ExternalResourceStreamEventArgs e)
+        {
+            if (!e.Uri.IsFile)
+                InvokeLogMessage(string.Format("Downloading file from URL {0}...", e.Uri));
+        }
 
         /// <summary>
         /// Handles the SizeChanged event of MainForm object.
@@ -296,8 +310,11 @@ namespace ImageConverterDemo
         /// </summary>
         private void docxToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            // edit DOCX document layout settings
-            _imageCollectionDocxLayoutSettingsManager.EditLayoutSettingsUseDialog();
+#if !REMOVE_OFFICE_PLUGIN            
+            // create dialog with necessary layout settings
+            using (DocumentLayoutSettingsDialog dialog = new DocxLayoutSettingsDialog(_documentConverter.Images))
+                dialog.ShowDialog();
+#endif
         }
 
         /// <summary>
@@ -305,8 +322,33 @@ namespace ImageConverterDemo
         /// </summary>
         private void xlsxToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            // edit XLSX document layout settings
-            _imageCollectionXlsxLayoutSettingsManager.EditLayoutSettingsUseDialog();
+#if !REMOVE_OFFICE_PLUGIN            
+            // create dialog with necessary layout settings
+            using (DocumentLayoutSettingsDialog dialog = new XlsxLayoutSettingsDialog(_documentConverter.Images))
+                dialog.ShowDialog();
+#endif
+        }
+
+        /// <summary>
+        /// Handles the Click event of htmlToolStripMenuItem object.
+        /// </summary>
+        private void htmlToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            // create dialog with necessary layout settings
+            using (DocumentLayoutSettingsDialog dialog = new HtmlLayoutSettingsDialog(_documentConverter.Images))
+                dialog.ShowDialog();
+        }
+
+        /// <summary>
+        /// Handles the Click event of emailToolStripMenuItem object.
+        /// </summary>
+        private void emailToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+#if !REMOVE_EMAIL_CODEC
+            // create dialog with necessary layout settings
+            using (DocumentLayoutSettingsDialog dialog = new EmailLayoutSettingsDialog(_documentConverter.Images))
+                dialog.ShowDialog();
+#endif
         }
 
         /// <summary>
@@ -520,23 +562,39 @@ namespace ImageConverterDemo
                     {
                         // choose a conversion type
                         if (sourceFileExtension == ".DOC" && destFileExtension == ".DOCX")
+                        {
                             _conversionThread = new Thread(ConvertDocToDocxThread);
+                        }
                         else if (sourceFileExtension == ".RTF" && destFileExtension == ".DOCX")
+                        {
                             _conversionThread = new Thread(ConvertRtfToDocxThread);
+                        }
                         else if ((sourceFileExtension == ".HTM" || sourceFileExtension == ".HTML" || sourceFileExtension == ".ZIP") &&
                              destFileExtension == ".DOCX")
+                        {
                             _conversionThread = new Thread(ConvertHtmlToDocxThread);
+                        }
                         else if (sourceFileExtension == ".ODT" && destFileExtension == ".DOCX")
+                        {
                             _conversionThread = new Thread(ConvertOdtToDocxThread);
+                        }
                         else if (sourceFileExtension == ".XLS" && destFileExtension == ".XLSX")
+                        {
                             _conversionThread = new Thread(ConvertXlsToXlsxThread);
+                        }
                         else if ((sourceFileExtension == ".TSV" || sourceFileExtension == ".TAB") &&
                              destFileExtension == ".XLSX")
+                        {
                             _conversionThread = new Thread(ConvertTsvToXlsxThread);
+                        }
                         else if (sourceFileExtension == ".CSV" && destFileExtension == ".XLSX")
+                        {
                             _conversionThread = new Thread(ConvertCsvToXlsxThread);
+                        }
                         else if (sourceFileExtension == ".ODS" && destFileExtension == ".XLSX")
+                        {
                             _conversionThread = new Thread(ConvertOdsToXlsxThread);
+                        }
                     }
 
                     if (_conversionThread != null)
@@ -612,6 +670,51 @@ namespace ImageConverterDemo
                     _conversionThread.Start();
                     return;
                 }
+#endif
+
+#if !REMOVE_EMAIL_CODEC
+                // if converting Email to HTML
+                if ((sourceFileExtension == ".EML" || sourceFileExtension == ".MSG") && (destFileExtension == ".HTM" || destFileExtension == ".HTML"))
+                {
+                    _conversionThread = null;
+
+                    if (_sourceFilenames.Count != 1)
+                    {
+                        DemosTools.ShowInfoMessage("For this destination file type specify exactly one source file.");
+                        return;
+                    }
+
+                    _conversionThread = new Thread(ConvertEmailToHtmlThread);
+                    convertButton.Text = "Cancel";
+                    InvokeUpdateMainMenu(false);
+
+                    _conversionThread.IsBackground = true;
+                    // start the conversion thread
+                    _conversionThread.Start();
+                    return;
+                }
+#if !REMOVE_OFFICE_PLUGIN
+                // if converting Email to HTML
+                if ((sourceFileExtension == ".EML" || sourceFileExtension == ".MSG") && (destFileExtension == ".DOCX"))
+                {
+                    _conversionThread = null;
+
+                    if (_sourceFilenames.Count != 1)
+                    {
+                        DemosTools.ShowInfoMessage("For this destination file type specify exactly one source file.");
+                        return;
+                    }
+
+                    _conversionThread = new Thread(ConvertEmailToDocxThread);
+                    convertButton.Text = "Cancel";
+                    InvokeUpdateMainMenu(false);
+
+                    _conversionThread.IsBackground = true;
+                    // start the conversion thread
+                    _conversionThread.Start();
+                    return;
+                }
+#endif
 #endif
 
 #if !REMOVE_PDF_PLUGIN
@@ -1188,7 +1291,120 @@ namespace ImageConverterDemo
                 OnConversionFinish();
             }
         }
+
+#if !REMOVE_EMAIL_CODEC
+        /// <summary>
+        /// A thread method that converts a Email (.msg, .eml) file to a DOCX file.
+        /// </summary>
+        private void ConvertEmailToDocxThread()
+        {
+            try
+            {
+                OnConversionStarting();
+
+                string destFilename = Path.GetFullPath(_destFilename);
+                string sourceFilename = _sourceFilenames[0];
+
+                string destDirectory = Path.Combine(Path.GetDirectoryName(Path.GetFullPath(destFilename)));
+                string attachmentsDirectory = Path.GetFileNameWithoutExtension(destFilename) + ".files";
+
+                KeyValuePair<string, object>[] headerInfo = null;
+                // open source Email file
+                using (Stream sourceFileStream = File.OpenRead(sourceFilename))
+                // convert Email file to a HTML file
+                using (HtmlDocumentSource htmlSource = EmailDocumentConverter.ConvertEmailToHtmlDocumentSource(sourceFileStream, attachmentsDirectory, EmailToHtmlConverterSettings.Default, out headerInfo))
+                {
+                    // create destination DOCX file
+                    using (Stream destFileStream = File.Create(destFilename))
+                    {
+                        // convert HTML file to a DOCX file
+                        OpenXmlDocumentConverter.ConvertHtmlToDocx(DocumentEnvironmentProperties.Default, htmlSource, destFileStream, DocxConverterSettings.Default);
+                        // if Email has attachments
+                        if (htmlSource.UriStreams.Count > 0)
+                        {
+                            // create attachments directory
+                            if (!Directory.Exists(Path.Combine(destDirectory, attachmentsDirectory)))
+                            {
+                                Directory.CreateDirectory(Path.Combine(destDirectory, attachmentsDirectory));
+                            }
+                            // for each attachment
+                            foreach (Uri attachmentName in htmlSource.UriStreams.Keys)
+                            {
+                                // create attachment stream
+                                using (Stream attachmentStream = htmlSource.CreateUriStream(attachmentName))
+                                {
+                                    // save attachment stream to a file
+                                    string attachmentFilename = Path.Combine(destDirectory, attachmentName.ToString());
+                                    File.WriteAllBytes(attachmentFilename, ReadAllBytes(attachmentStream));
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                DemosTools.ShowErrorMessage(ex);
+            }
+            finally
+            {
+                OnConversionFinish();
+            }
+        }
+
+        /// <summary>
+        /// Reads all bytes from specified stream.
+        /// </summary>
+        /// <param name="stream">The stream to read.</param>
+        internal static byte[] ReadAllBytes(Stream stream)
+        {
+            stream.Position = 0;
+            int count = (int)stream.Length;
+            int offset = 0;
+            byte[] buffer = new byte[count];
+            while (count > 0)
+            {
+                int bytesRead = stream.Read(buffer, offset, count);
+
+                if (bytesRead == 0)
+                {
+                    throw new EndOfStreamException();
+                }
+
+                count -= bytesRead;
+                offset += bytesRead;
+            }
+            return buffer;
+        }
 #endif
+#endif
+
+
+#if !REMOVE_EMAIL_CODEC
+        /// <summary>
+        /// A thread method that converts a Email (.msg, .eml)  to a HTML file.
+        /// </summary>
+        private void ConvertEmailToHtmlThread()
+        {
+            try
+            {
+                OnConversionStarting();
+                EmailToHtmlConverterSettings settings = new EmailToHtmlConverterSettings();
+
+                string attachmentsDirectoryName = Path.GetFileNameWithoutExtension(_destFilename) + ".files";
+                EmailDocumentConverter.ConvertEmailToHtml(_sourceFilenames[0], _destFilename, attachmentsDirectoryName, settings);
+            }
+            catch (Exception ex)
+            {
+                DemosTools.ShowErrorMessage(ex);
+            }
+            finally
+            {
+                OnConversionFinish();
+            }
+        }
+#endif
+
 
 #if !REMOVE_PDF_PLUGIN
         /// <summary>
